@@ -1,4 +1,4 @@
-FROM alpine:3.23.7
+FROM alpine:3.24.3
 
 LABEL org.opencontainers.image.title="DNSControl Action"
 LABEL org.opencontainers.image.description="Deploy your DNS configuration using DNSControl."
