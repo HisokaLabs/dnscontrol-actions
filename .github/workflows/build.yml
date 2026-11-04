@@ -1,0 +1,24 @@
+---
+on: push
+name: build
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Dockerfilelint
+        uses: docker://replicated/dockerfilelint
+        with:
+          args: Dockerfile
+
+      - name: ShellCheck
+        run: shellcheck entrypoint.sh bin/filter-preview-output.sh
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: dnscontrol-action:test
