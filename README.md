@@ -28,6 +28,8 @@ jobs:
 
       - name: DNSControl check
         uses: HisokaLabs/dnscontrol-actions@v4
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         with:
           args: check
 
@@ -93,20 +95,29 @@ Done. 6 corrections.
 
 Provided that your GitHub Action job for 'preview' has an id
 `dnscontrol_preview`, you could use the following snippet to enable pull request
-comments using Unsplash's [comment-on-pr](https://github.com/unsplash/comment-on-pr)
-GitHub Action.
+comments using [actions/github-script](https://github.com/actions/github-script).
+It updates one comment per PR instead of stacking a new comment on every push.
 
 ```yaml
 - name: Preview pull request comment
-  uses: unsplash/comment-on-pr@v1.4.0
+  uses: actions/github-script@v8
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   with:
-    msg: |
-      ```
-      ${{ steps.dnscontrol_preview.outputs.preview_comment }}
-      ```
-    check_for_duplicate_msg: true
+    script: |
+      const body = [
+        '### DNS preview',
+        '',
+        '```',
+        process.env.PREVIEW_COMMENT,
+        '```',
+      ].join('\n');
+      await github.rest.issues.createComment({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        issue_number: context.issue.number,
+        body,
+      });
 ```
 
 ### push
